@@ -1,14 +1,16 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FileText, ArrowLeft, ArrowRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, ArrowLeft, ArrowRight, Bot, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import PersonalInfoForm from "@/components/resume/PersonalInfoForm";
 import EducationForm from "@/components/resume/EducationForm";
 import ExperienceForm from "@/components/resume/ExperienceForm";
 import SkillsForm from "@/components/resume/SkillsForm";
 import ResumePreview from "@/components/resume/ResumePreview";
+import ResumeAnalysisComponent from "@/components/resume/ResumeAnalysis";
+import ChatBot from "@/components/resume/ChatBot";
 
 export interface ResumeData {
   personalInfo: {
@@ -92,6 +94,14 @@ const Builder = () => {
     }));
   };
 
+  const handleEnhanceResume = (enhancedData: ResumeData) => {
+    setResumeData(enhancedData);
+  };
+
+  const getResumeContext = () => {
+    return `Current resume data: ${JSON.stringify(resumeData, null, 2)}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
@@ -123,49 +133,76 @@ const Builder = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-8">
-        <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {/* Form Section */}
-          <Card className="p-6 shadow-xl border-0">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {steps[currentStep].title}
-              </h2>
-              <p className="text-gray-600">
-                Fill in your {steps[currentStep].title.toLowerCase()} details
-              </p>
-            </div>
+          <Card className="lg:col-span-2 p-6 shadow-xl border-0">
+            <Tabs defaultValue="form" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="form">Resume Form</TabsTrigger>
+                <TabsTrigger value="analysis">
+                  <Bot className="w-4 h-4 mr-2" />
+                  AI Analysis
+                </TabsTrigger>
+                <TabsTrigger value="chat">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  AI Chat
+                </TabsTrigger>
+              </TabsList>
 
-            <CurrentStepComponent 
-              data={resumeData}
-              updateData={updateResumeData}
-            />
+              <TabsContent value="form" className="mt-6">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {steps[currentStep].title}
+                  </h2>
+                  <p className="text-gray-600">
+                    Fill in your {steps[currentStep].title.toLowerCase()} details
+                  </p>
+                </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep === 0}
-                className="flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Previous</span>
-              </Button>
+                <CurrentStepComponent 
+                  data={resumeData}
+                  updateData={updateResumeData}
+                />
 
-              {currentStep === steps.length - 1 ? (
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2">
-                  <span>Generate Resume</span>
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2"
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+                {/* Navigation Buttons */}
+                <div className="flex justify-between mt-8">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 0}
+                    className="flex items-center space-x-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Previous</span>
+                  </Button>
+
+                  {currentStep === steps.length - 1 ? (
+                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2">
+                      <span>Generate Resume</span>
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleNext}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex items-center space-x-2"
+                    >
+                      <span>Next</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="analysis" className="mt-6">
+                <ResumeAnalysisComponent 
+                  data={resumeData}
+                  onEnhance={handleEnhanceResume}
+                />
+              </TabsContent>
+
+              <TabsContent value="chat" className="mt-6">
+                <ChatBot resumeContext={getResumeContext()} />
+              </TabsContent>
+            </Tabs>
           </Card>
 
           {/* Preview Section */}

@@ -1,40 +1,55 @@
-# urCV.ai – Intelligent Resume Builder
+# 🚀 urCV.ai – Intelligent Resume Builder
 
 ![urCV.ai Hero](docs/images/screenshot1.png)
 
-**urCV.ai** is a state-of-the-art, AI-powered resume builder designed to help job seekers create professional, ATS-friendly resumes in minutes.  
-It leverages a **dual-engine AI architecture** — combining **Groq (Llama 3)** for instant resume analysis and **Google Gemini 2.5** for intelligent career advice.
+<p align="center">
+  <b>Build ATS-friendly resumes in minutes using AI.</b><br/>
+  Powered by <b>Groq (Llama 3)</b> ⚡ + <b>Google Gemini 2.5</b> 🧠
+</p>
+
+---
+
+## ✨ Overview
+
+**urCV.ai** is a state-of-the-art, AI-powered resume builder designed to help job seekers create **professional, ATS-optimized resumes** effortlessly.
+
+It leverages a **dual-engine AI architecture**:
+- ⚡ **Groq (Llama 3)** → ultra-fast resume analysis & scoring  
+- 🧠 **Google Gemini 2.5** → intelligent rewriting & career guidance  
+
+Think of urCV.ai as a **virtual career consultant**, not just a resume builder.
 
 ---
 
 ## 🚀 Key Features
 
-- **🤖 AI-Powered Resume Intelligence**
-  - Groq + Llama 3 for fast resume scoring and analysis
-  - Google Gemini 2.5 for smart rewriting and career guidance
+### 🤖 AI-Powered Resume Intelligence
+- Instant resume scoring & keyword analysis
+- Actionable improvement suggestions
+- Smart bullet-point rewriting
 
-- **🎨 Professional Resume Templates**
-  - Modern
-  - Professional
-  - Creative
-  - Executive
+### 🎨 Professional Resume Templates
+- 🧩 Modern  
+- 🧾 Professional  
+- 🎭 Creative  
+- 👔 Executive  
 
-- **💬 Intelligent Career Assistant**
-  - Context-aware chatbot
-  - Resume improvement suggestions
-  - Career and interview advice
+### 💬 Intelligent Career Assistant
+- Context-aware AI chatbot
+- Resume optimization tips
+- Career & interview guidance
 
-- **📄 Real-Time Resume Preview**
-  - Live split-screen editing
-  - Instant updates while typing
+### 📄 Live Resume Preview
+- Split-screen editing
+- Real-time updates as you type
 
-- **📱 Fully Responsive Design**
-  - Works seamlessly on desktop, tablet, and mobile devices
+### 📱 Fully Responsive Design
+- Optimized for desktop, tablet & mobile
 
-- **⬇️ Multiple Export Formats**
-  - High-quality PDF
-  - Editable DOCX (Word)
-  - ATS-friendly output
+### ⬇️ Multiple Export Formats
+- 📄 High-quality PDF  
+- 📝 Editable DOCX (Word)  
+- ✅ ATS-friendly output  
 
 ---
 
@@ -49,7 +64,7 @@ It leverages a **dual-engine AI architecture** — combining **Groq (Llama 3)** 
 ### 🧩 Professional Templates
 ![Templates Page](docs/images/screenshot3.png)
 
-### 👔 Executive Resume Design
+### 👔 Executive Design
 ![Executive Template](docs/images/screenshot4.png)
 
 ### 🎯 Template Selection
@@ -59,28 +74,30 @@ It leverages a **dual-engine AI architecture** — combining **Groq (Llama 3)** 
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework:** React + Vite
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **UI Components:** Shadcn/UI (customized)
-- **Icons:** Lucide React
+### 🎨 Frontend
+- ⚛️ **React + Vite**
+- 🟦 **TypeScript**
+- 💨 **Tailwind CSS**
+- 🧱 **Shadcn/UI**
+- 🎯 **Lucide Icons**
 
-### AI & Services
-- **Resume Analysis:** Groq SDK (Llama 3)
-- **Career Assistant:** Google Generative AI SDK (Gemini 2.5)
-- **File Parsing:** mammoth
-- **Document Export:** PDF & DOCX generation services
+### 🧠 AI & Services
+- ⚡ **Groq SDK** (Llama 3)
+- 🤖 **Google Generative AI SDK** (Gemini 2.5)
+- 📂 **mammoth** – Resume file parsing
+- 📄 **PDF / DOCX Export Services**
 
 ---
 
 ## 🏁 Getting Started
 
-### Prerequisites
-- Node.js **v18 or higher**
+### 🔧 Prerequisites
+- Node.js **v18+**
 - npm or yarn
 
-### Installation
+---
+
+### 📦 Installation
 
 #### 1️⃣ Clone the repository
 ```bash
@@ -90,64 +107,53 @@ cd urCV.ai
 bash
 Copy code
 npm install
-3️⃣ Configure Environment Variables
+3️⃣ Configure environment variables
 Create a .env file in the root directory:
 
 env
 Copy code
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
-# Optional for production use
+# Optional (production)
 # VITE_GROQ_API_KEY=your_groq_api_key_here
 4️⃣ Run the development server
 bash
 Copy code
 npm run dev
-Open http://localhost:8080 in your browser.
+🌐 Open http://localhost:8080 in your browser.
 
 📂 Project Structure
 text
 Copy code
 urCV.ai/
 ├── docs/
-│   └── images/                 # Screenshots and assets
-├── public/                     # Static assets (icons, robots.txt)
+│   └── images/                 # Screenshots
+├── public/                     # Static assets
 ├── src/
 │   ├── components/
 │   │   ├── layout/             # Header, Footer
-│   │   ├── resume/             # Core builder components
-│   │   │   ├── forms/          # Input forms (Education, Experience, Skills)
-│   │   │   ├── templates/      # Resume designs (Modern, Creative, Professional)
-│   │   │   ├── ChatBot.tsx     # Gemini-powered career assistant
-│   │   │   ├── ResumeAnalysis.tsx # Groq-powered scoring engine
-│   │   │   ├── ResumeGenerator.tsx # PDF/DOCX export logic
-│   │   │   ├── ResumePreview.tsx   # Live resume preview
-│   │   │   └── aiprompt.ts     # Gemini API prompts
-│   │   └── ui/                 # Reusable UI components (Shadcn/UI)
+│   │   ├── resume/             # Resume builder logic
+│   │   │   ├── forms/          # Education, Experience, Skills
+│   │   │   ├── templates/      # Resume templates
+│   │   │   ├── ChatBot.tsx     # Gemini AI assistant
+│   │   │   ├── ResumeAnalysis.tsx
+│   │   │   ├── ResumeGenerator.tsx
+│   │   │   ├── ResumePreview.tsx
+│   │   │   └── aiprompt.ts
+│   │   └── ui/                 # Shadcn UI components
 │   ├── hooks/                  # Custom hooks
-│   ├── lib/                    # Utility helpers (clsx, tw-merge)
-│   ├── pages/                  # Application routes
-│   │   ├── Builder.tsx         # Main resume builder
-│   │   ├── Index.tsx           # Landing page
-│   │   ├── Templates.tsx       # Template selection
-│   │   └── NotFound.tsx        # 404 page
-│   ├── services/
-│   │   ├── documentService.ts  # DOCX/PDF generation
-│   │   ├── fileParserService.ts # Resume file parsing
-│   │   └── groqService.ts      # Groq (Llama 3) integration
-│   ├── App.tsx                 # Root component
-│   └── main.tsx                # Application entry point
-├── .gitignore
-├── components.json             # Shadcn UI config
-├── eslint.config.js            # ESLint configuration
-├── index.html                  # HTML entry
-├── package.json                # Dependencies & scripts
-├── postcss.config.js           # PostCSS config
-├── tailwind.config.ts          # Tailwind CSS config
-├── tsconfig.json               # TypeScript config
-└── vite.config.ts              # Vite build config
+│   ├── lib/                    # Utilities
+│   ├── pages/                  # App routes
+│   ├── services/               # AI & document services
+│   ├── App.tsx
+│   └── main.tsx
+├── package.json
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
 🤝 Contributing
-Contributions are welcome!
+✨ Contributions are highly welcome!
 
+🛠️ How to Contribute
 Fork the repository
 
 Create a new branch
@@ -165,12 +171,11 @@ Push to GitHub
 bash
 Copy code
 git push origin feature/YourFeature
-Open a Pull Request
+Open a Pull Request 🚀
 
 📄 License
-This project is developed under the AcWoc 2026 Initiative.
+📜 This project is developed under the AcWoc 2026 Initiative.
 
-Copyright © 2026 N-PCs
-All rights reserved.
+© 2026 N-PCs — All rights reserved.
 
-<p align="center"> Maintained by <strong>Neel Pandey</strong> </p> ```
+<p align="center"> 🧠 Maintained by <b>Neel Pandey</b> </p> ```

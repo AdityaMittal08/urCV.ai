@@ -16,8 +16,8 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-2">
-                            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20">
-                                <FileText className="w-6 h-6 text-white" />
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20">
+                                <img alt='logo' src='./websitelogo.png'></img>
                             </div>
                             <span className="text-2xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
                                 N-PCs

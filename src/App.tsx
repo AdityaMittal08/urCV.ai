@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Builder from "./pages/Builder";
 import NotFound from "./pages/NotFound";
 import Templates from "./pages/Templates";
+import ResumeGuide from "./pages/ResumeGuide";
 import LoadingScreen from "./components/LoadingScreen";
 
 const queryClient = new QueryClient();
@@ -84,6 +85,20 @@ const AnimatedRoutes = () => {
               transition={pageTransition}
             >
               <Templates />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/resume-guide"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <ResumeGuide />
             </motion.div>
           }
         />

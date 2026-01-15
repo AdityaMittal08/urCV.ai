@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import Footer from "@/components/layout/Footer";
 import LogoLoop from '@/components/LogoLoop';
+import ResumeTipsSection from '@/components/resume/ResumeTipsSection';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiVite, SiVercel, SiFigma, SiGithub, SiNodedotjs, SiExpress, SiMongodb, SiPostgresql, SiDocker, SiGooglecloud, SiFirebase } from 'react-icons/si';
 
 // Create a larger array of logos for better animation
@@ -186,6 +187,8 @@ const Index = () => {
           </Card>
         </div>
       </div>
+
+      <ResumeTipsSection />
 
       {/* CTA Section with Logo Loop */}
       <div className="bg-gradient-to-br from-slate-900 to-blue-900 py-20 animate-fade-in">

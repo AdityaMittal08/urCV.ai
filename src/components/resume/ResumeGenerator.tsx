@@ -14,11 +14,49 @@ interface ResumeGeneratorProps {
   templateName: 'default' | 'modern' | 'professional' | 'creative';
 }
 
+type PreparedPreview = {
+  element: HTMLDivElement;
+  cleanup: () => void;
+};
+
 const ResumeGenerator = ({ data, templateName }: ResumeGeneratorProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [shareableLink, setShareableLink] = useState<string | null>(null);
   const resumePreviewRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const preparePreviewForCapture = async (): Promise<PreparedPreview | null> => {
+    if (!resumePreviewRef.current) {
+      return null;
+    }
+
+    const element = resumePreviewRef.current;
+    const originalStyle = element.getAttribute('style');
+
+    Object.assign(element.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '800px',
+      height: 'auto',
+      opacity: '1',
+      pointerEvents: 'auto',
+      zIndex: '9999',
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    return {
+      element,
+      cleanup: () => {
+        if (originalStyle) {
+          element.setAttribute('style', originalStyle);
+        } else {
+          element.removeAttribute('style');
+        }
+      },
+    };
+  };
 
   const generateWordResume = async () => {
     setIsGenerating(true);
@@ -42,8 +80,16 @@ const ResumeGenerator = ({ data, templateName }: ResumeGeneratorProps) => {
 
   const generatePDFResume = async () => {
     setIsGenerating(true);
-    try{
-      const pdfBlob = generatePDF(data, templateName);
+    let prepared: PreparedPreview | null = null;
+
+    try {
+      prepared = await preparePreviewForCapture();
+      if (!prepared) {
+        throw new Error('Unable to access resume preview for PDF generation');
+      }
+
+      const pdfBlob = await generatePDFFromElement(prepared.element);
+
       downloadFile(pdfBlob, `${data.personalInfo.fullName || 'resume'}.pdf`);
 
       toast({
@@ -58,30 +104,41 @@ const ResumeGenerator = ({ data, templateName }: ResumeGeneratorProps) => {
         variant: "destructive",
       });
     } finally {
+      prepared?.cleanup();
       setIsGenerating(false);
     }
   };
 
   const generateImageResume = async () => {
-    if (!resumePreviewRef.current) return;
-
     setIsGenerating(true);
+    let prepared: PreparedPreview | null = null;
+
     try {
-      const canvas = await html2canvas(resumePreviewRef.current, {
+      prepared = await preparePreviewForCapture();
+      if (!prepared) {
+        throw new Error('Unable to access resume preview for image generation');
+      }
+
+      const canvas = await html2canvas(prepared.element, {
         useCORS: true,
         allowTaint: true,
         background: '#ffffff'
       });
 
-      canvas.toBlob((blob) => {
-        if (blob) {
-          downloadFile(blob, `${data.personalInfo.fullName || 'resume'}.png`);
-          toast({
-            title: "Image Generated",
-            description: "Your resume has been downloaded as an image!",
-          });
-        }
-      }, 'image/png');
+      await new Promise<void>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            downloadFile(blob, `${data.personalInfo.fullName || 'resume'}.png`);
+            toast({
+              title: "Image Generated",
+              description: "Your resume has been downloaded as an image!",
+            });
+            resolve();
+          } else {
+            reject(new Error('Unable to export resume preview as image'));
+          }
+        }, 'image/png');
+      });
     } catch (error) {
       toast({
         title: "Generation Failed",
@@ -89,6 +146,7 @@ const ResumeGenerator = ({ data, templateName }: ResumeGeneratorProps) => {
         variant: "destructive",
       });
     } finally {
+      prepared?.cleanup();
       setIsGenerating(false);
     }
   };

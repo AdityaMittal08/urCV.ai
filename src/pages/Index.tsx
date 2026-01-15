@@ -65,16 +65,11 @@ const techLogos = [
     href: "https://mongodb.com"
   },
   { 
-    node: <SiPostgresql className="text-[#4169E1]" size={48} />,
-    title: "PostgreSQL",
-    href: "https://postgresql.org"
-  },
-  { 
     node: <SiDocker className="text-[#2496ED]" size={48} />,
     title: "Docker",
     href: "https://docker.com"
-  }, 
-  { 
+  },
+  {
     node: <SiGooglecloud className="text-white" size={48} />,
     title: "Google Cloud",
     href: "https://cloud.google.com"
@@ -233,18 +228,6 @@ const Index = () => {
                 ariaLabel="Technology logos carousel reverse"
               />
             </div>
-          </div>
-
-          {/* CTA Button */}
-          <div className="mt-8">
-            <Link to="/builder">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-6 rounded-xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1 font-bold text-lg hover:scale-105">
-                🚀 Start Building Your Resume Now
-              </Button>
-            </Link>
-            <p className="text-slate-400 mt-4 text-sm">
-              No credit card required • Get started in seconds
-            </p>
           </div>
         </div>
       </div>

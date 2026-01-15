@@ -126,7 +126,6 @@ const Builder = () => {
   };
 
   const handleExtractedData = (extractedData: ResumeData) => {
-    console.log('Builder received extracted data:', extractedData);
     setResumeData(extractedData);
   };
 

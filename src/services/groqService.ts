@@ -1,60 +1,10 @@
 
 import Groq from 'groq-sdk';
 
-const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-
-if (!apiKey || apiKey === 'YOUR_GROQ_API_KEY') {
-  console.warn('Groq API key is missing. Please set VITE_GROQ_API_KEY in your .env file.');
-}
-
 const groq = new Groq({
-  apiKey: apiKey || '',
+  apiKey: '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',
   dangerouslyAllowBrowser: true
 });
-
-/**
- * Cleans the AI response by removing markdown formatting and isolating JSON.
- */
-const cleanAIResponse = (response: string): string => {
-  let cleanResponse = response.trim();
-  
-  // Find the first '{' and last '}' to isolate JSON object
-  const jsonStartIndex = cleanResponse.indexOf('{');
-  const jsonEndIndex = cleanResponse.lastIndexOf('}');
-  
-  if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
-    cleanResponse = cleanResponse.substring(jsonStartIndex, jsonEndIndex + 1);
-  }
-  
-  // Remove markdown code blocks if still present
-  cleanResponse = cleanResponse
-    .replace(/^```json\s*/, '')
-    .replace(/^```\s*/, '')
-    .replace(/\s*```$/, '')
-    .replace(/^`+|`+$/g, '')
-    .trim();
-    
-  return cleanResponse;
-};
-
-/**
- * Handles Groq API errors and provides user-friendly messages.
- */
-const handleGroqError = (error: any, context: string): never => {
-  console.error(`Error in ${context}:`, error);
-  
-  if (error.status === 401) {
-    throw new Error('Invalid Groq API key. Please check your configuration.');
-  } else if (error.status === 429) {
-    throw new Error('AI rate limit reached. Please wait a moment and try again.');
-  } else if (error.status === 413) {
-    throw new Error('Resume text is too large for the AI to process.');
-  } else if (error.message?.includes('JSON.parse')) {
-    throw new Error('AI response was malformed. Please try again.');
-  }
-  
-  throw new Error(error.message || `Failed to ${context}. Please check your connection.`);
-};
 
 export interface ResumeAnalysis {
   score: number;
@@ -99,126 +49,77 @@ export interface EnhancedResumeData {
 
 export const analyzeResume = async (resumeData: any): Promise<ResumeAnalysis> => {
   try {
-    // Robust validation to see if the resume is actually empty
-    const hasPersonalInfo = resumeData.personalInfo && 
-                           typeof resumeData.personalInfo === 'object' &&
-                           resumeData.personalInfo.fullName && 
-                           resumeData.personalInfo.fullName.trim().length > 0;
-                           
-    const hasExperience = Array.isArray(resumeData.experience) && 
-                          resumeData.experience.length > 0 &&
-                          resumeData.experience[0].title;
-                          
-    const hasEducation = Array.isArray(resumeData.education) && 
-                         resumeData.education.length > 0 &&
-                         resumeData.education[0].school;
-                         
-    const hasSkills = resumeData.skills && 
-                       ((Array.isArray(resumeData.skills.technical) && resumeData.skills.technical.length > 0) ||
-                        (Array.isArray(resumeData.skills.languages) && resumeData.skills.languages.length > 0) ||
-                        (Array.isArray(resumeData.skills.certifications) && resumeData.skills.certifications.length > 0));
-  
-     if (!hasPersonalInfo && !hasExperience && !hasEducation && !hasSkills) {
-       console.log('Resume validation failed. Data:', JSON.stringify(resumeData));
-       return {
-         score: 0,
-         strengths: [],
-         improvements: ['Your resume appears to be empty. Please fill in your details or upload a resume.'],
-         suggestions: ['Start by adding your personal information', 'Add your work experience and education']
-       };
-     }
-
-    console.log('Analyzing resume data:', JSON.stringify(resumeData, null, 2));
-
-    const prompt = `You are an expert ATS (Applicant Tracking System) and professional resume reviewer. 
-    Analyze the following resume data and provide a detailed, honest, and constructive evaluation.
+    const prompt = `Analyze this resume data and provide feedback:
     
-    CRITICAL INSTRUCTIONS:
-    1. If the "RESUME DATA TO ANALYZE" contains ANY real information (like a name, a job title, or a skill), you MUST give a score between 1 and 100.
-    2. A score of 0 is ONLY allowed if the entire "RESUME DATA TO ANALYZE" is empty, null, or contains only placeholder/template data that doesn't belong to a person.
-    3. Even if the resume is very poor, if it has content, give it at least a score of 10-20.
-    
-    RESUME DATA TO ANALYZE:
     ${JSON.stringify(resumeData, null, 2)}
     
     Please provide:
-    1. A numerical score (1-100) based on professional standards, clarity, and ATS-friendliness.
-    2. A list of 3-5 specific strengths found in this data.
-    3. A list of 3-5 specific areas for improvement.
-    4. A list of 3-5 actionable suggestions to make the resume stand out.
+    1. A score out of 100
+    2. List of strengths
+    3. List of areas for improvement
+    4. Specific suggestions for enhancement
     
-    Respond ONLY with a valid JSON object in this format:
-    {
-      "score": number,
-      "strengths": ["string", ...],
-      "improvements": ["string", ...],
-      "suggestions": ["string", ...]
-    }`;
+    Respond in JSON format with keys: score, strengths, improvements, suggestions`;
 
     const completion = await groq.chat.completions.create({
-      messages: [
-        { role: 'system', content: 'You are a professional career coach and resume expert. You only output valid JSON.' },
-        { role: 'user', content: prompt }
-      ],
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0.1,
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama3-8b-8192',
+      temperature: 0.7,
     });
 
     const response = completion.choices[0]?.message?.content;
     if (!response) throw new Error('No response from AI');
 
+    // Try to parse JSON, fallback to structured text parsing
     try {
-      const cleanResponse = cleanAIResponse(response);
-      return JSON.parse(cleanResponse);
-    } catch (parseError) {
-      console.warn('JSON parsing failed, using fallback analysis:', parseError);
+      return JSON.parse(response);
+    } catch {
+      // Fallback parsing if JSON is malformed
       return {
-        score: 70,
-        strengths: ['Clear structure', 'Relevant sections included'],
-        improvements: ['Could use more quantifiable metrics', 'Summary could be more impactful'],
-        suggestions: ['Add specific numbers to your achievements', 'Tailor your summary to target roles']
+        score: 75,
+        strengths: ['Experience section is well-detailed', 'Good technical skills listed'],
+        improvements: ['Add more quantifiable achievements', 'Improve summary section'],
+        suggestions: ['Use action verbs in experience descriptions', 'Add relevant certifications']
       };
     }
   } catch (error) {
-    return handleGroqError(error, 'analyze resume');
+    console.error('Error analyzing resume:', error);
+    throw error;
   }
 };
 
 export const enhanceResume = async (resumeData: any): Promise<EnhancedResumeData> => {
   try {
-    const prompt = `You are a professional resume writer and career expert. 
-    Your task is to rewrite and enhance the following resume data to make it significantly more professional, impactful, and ATS-optimized.
+    const prompt = `Enhance this resume data to make it more professional and impactful:
     
     ${JSON.stringify(resumeData, null, 2)}
     
-    Focus on:
-    1. Rewriting the summary to be a compelling "Elevator Pitch".
-    2. Using strong action verbs and quantifiable results in the experience section.
-    3. Improving the overall professional tone and vocabulary.
-    4. Ensuring all data is preserved but presented more effectively.
+    Please improve:
+    1. Professional summary - make it more compelling
+    2. Experience descriptions - add impact and achievements
+    3. Skills organization - categorize better
+    4. Overall professional language
     
-    Return the FULL enhanced resume data in the exact same JSON structure. Respond ONLY with the JSON object.`;
+    Return the enhanced resume in the same JSON structure.`;
 
     const completion = await groq.chat.completions.create({
-      messages: [
-        { role: 'system', content: 'You are an expert resume writer. You only output valid JSON.' },
-        { role: 'user', content: prompt }
-      ],
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0.4,
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama3-8b-8192',
+      temperature: 0.7,
     });
 
     const response = completion.choices[0]?.message?.content;
     if (!response) throw new Error('No response from AI');
 
     try {
-      const cleanResponse = cleanAIResponse(response);
-      return JSON.parse(cleanResponse);
+      return JSON.parse(response);
     } catch {
-      return resumeData; // Fallback to original if enhancement fails
+      // Fallback to original data if parsing fails
+      return resumeData;
     }
   } catch (error) {
-    return handleGroqError(error, 'enhance resume');
+    console.error('Error enhancing resume:', error);
+    throw error;
   }
 };
 
@@ -233,7 +134,7 @@ export const chatWithAI = async (message: string, context?: string): Promise<str
         { role: 'system', content: systemMessage },
         { role: 'user', content: message }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama3-8b-8192',
       temperature: 0.7,
     });
 
@@ -246,28 +147,11 @@ export const chatWithAI = async (message: string, context?: string): Promise<str
 
 export const extractResumeDataWithAI = async (resumeText: string): Promise<EnhancedResumeData> => {
   try {
-    console.log('Extracting resume data from text (length):', resumeText.length);
-    
-    if (!resumeText || resumeText.trim().length < 50) {
-      throw new Error('The provided text is too short to be a valid resume. Please provide more detail.');
-    }
+    const prompt = `Extract and structure the following resume data into a JSON format:
 
-    const prompt = `You are an expert resume parser. Your task is to extract all professional information from the text below and structure it into a clean JSON format.
-
-    TEXT TO PARSE:
-    """
     ${resumeText}
-    """
 
-    STRICT RULES:
-    1. Extract the full name, email, phone, location, and LinkedIn URL if present.
-    2. For Experience and Education, extract ALL items found.
-    3. For "current" in experience, set to true if the end date is "Present", "Current", or if no end date is provided for the first item.
-    4. If a specific field is absolutely not found, use an empty string "" or an empty array [].
-    5. Ensure the "id" fields are unique (e.g., "exp-1", "exp-2").
-    6. Return ONLY the JSON object. No markdown, no "Here is the JSON", no conversational filler.
-
-    JSON STRUCTURE TO FOLLOW:
+    Please extract and organize the information into this exact JSON structure:
     {
       "personalInfo": {
         "fullName": "",
@@ -279,7 +163,7 @@ export const extractResumeDataWithAI = async (resumeText: string): Promise<Enhan
       },
       "experience": [
         {
-          "id": "exp-1",
+          "id": "unique-id",
           "title": "",
           "company": "",
           "location": "",
@@ -291,7 +175,7 @@ export const extractResumeDataWithAI = async (resumeText: string): Promise<Enhan
       ],
       "education": [
         {
-          "id": "edu-1",
+          "id": "unique-id",
           "degree": "",
           "school": "",
           "location": "",
@@ -304,45 +188,76 @@ export const extractResumeDataWithAI = async (resumeText: string): Promise<Enhan
         "languages": [],
         "certifications": []
       }
-    }`;
+    }
+
+    Extract all relevant information and organize it properly. If information is missing, leave the field empty. Return ONLY valid JSON without any explanatory text, markdown formatting, or code blocks.`;
 
     const completion = await groq.chat.completions.create({
-      messages: [
-        { role: 'system', content: 'You are a data extraction expert. You only output valid JSON.' },
-        { role: 'user', content: prompt }
-      ],
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0,
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama3-8b-8192',
+      temperature: 0.3,
     });
 
     const response = completion.choices[0]?.message?.content;
     if (!response) throw new Error('No response from AI');
 
+    console.log('Raw AI response:', response);
+
     try {
-      const cleanResponse = cleanAIResponse(response);
+      // Clean the response by removing markdown code blocks and extra whitespace
+      let cleanResponse = response.trim();
+      
+      // Remove any explanatory text before JSON
+      const jsonStartIndex = cleanResponse.indexOf('{');
+      if (jsonStartIndex > 0) {
+        cleanResponse = cleanResponse.substring(jsonStartIndex);
+      }
+      
+      // Find the last closing brace to remove any text after JSON
+      const jsonEndIndex = cleanResponse.lastIndexOf('}');
+      if (jsonEndIndex > 0) {
+        cleanResponse = cleanResponse.substring(0, jsonEndIndex + 1);
+      }
+      
+      // Remove markdown code blocks if present
+      if (cleanResponse.startsWith('```json')) {
+        cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanResponse.startsWith('```')) {
+        cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+      
+      // Remove any remaining backticks or formatting
+      cleanResponse = cleanResponse.replace(/^`+|`+$/g, '').trim();
+      
+      console.log('Cleaned response:', cleanResponse);
+      
       const parsedData = JSON.parse(cleanResponse);
-      console.log('Extracted data from AI:', parsedData);
       
-      // Post-process to ensure IDs and types
-      if (parsedData.experience) {
-        parsedData.experience = parsedData.experience.map((exp: any, i: number) => ({
+      // Generate IDs for experience and education if missing
+      if (parsedData.experience && Array.isArray(parsedData.experience)) {
+        parsedData.experience = parsedData.experience.map((exp: any, index: number) => ({
           ...exp,
-          id: exp.id || `exp-${i + 1}`
-        }));
-      }
-      if (parsedData.education) {
-        parsedData.education = parsedData.education.map((edu: any, i: number) => ({
-          ...edu,
-          id: edu.id || `edu-${i + 1}`
+          id: exp.id || `exp-${index + 1}`
         }));
       }
       
+      if (parsedData.education && Array.isArray(parsedData.education)) {
+        parsedData.education = parsedData.education.map((edu: any, index: number) => ({
+          ...edu,
+          id: edu.id || `edu-${index + 1}`
+        }));
+      }
+      
+      console.log('Successfully parsed data:', parsedData);
       return parsedData;
     } catch (parseError) {
-      console.error('Failed to parse extraction result:', response);
-      return handleGroqError(parseError, 'extract resume data');
+      console.error('JSON parsing error:', parseError);
+      console.error('Failed to parse response:', response);
+      // Fallback if JSON parsing fails
+      throw new Error('Failed to parse AI response');
     }
   } catch (error) {
-    return handleGroqError(error, 'extract resume data');
+    console.error('Error extracting resume data:', error);
+    throw error;
   }
 };

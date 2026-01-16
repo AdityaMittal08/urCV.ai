@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, ArrowLeft, ArrowRight, Bot } from "lucide-react";
+import { FileText, ArrowLeft, ArrowRight, Bot, Home, LayoutTemplate } from "lucide-react";
 import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import PersonalInfoForm from "@/components/resume/PersonalInfoForm";
@@ -162,7 +162,7 @@ const Builder = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       {/* Navigation */}
       <nav className="container mx-auto px-4 py-6 animate-fade-in">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8  rounded-lg flex items-center justify-center">
                 <img alt="website" src="./websitelogo.png"/>
@@ -171,9 +171,35 @@ const Builder = () => {
               urCV.ai
             </span>
           </Link>
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-600 dark:text-gray-400">Step {currentStep + 1} of {steps.length}</span>
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 text-sm">
+            <span className="text-gray-600 dark:text-gray-400">
+              Step {currentStep + 1} of {steps.length}
+            </span>
             <ThemeToggle />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+                asChild
+              >
+                <Link to="/" aria-label="Back to main page" className="flex items-center gap-1">
+                  <Home className="w-4 h-4" />
+                  <span>Back Home</span>
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-blue-200 text-blue-600 hover:text-white hover:bg-blue-600 dark:border-blue-800 dark:text-blue-300"
+                asChild
+              >
+                <Link to="/templates" aria-label="Go to templates page" className="flex items-center gap-1">
+                  <LayoutTemplate className="w-4 h-4" />
+                  <span>Templates</span>
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </nav>

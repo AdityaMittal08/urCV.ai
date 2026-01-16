@@ -14,6 +14,8 @@ import ResumeAnalysisComponent from "@/components/resume/ResumeAnalysis";
 import ResumeGenerator from "@/components/resume/ResumeGenerator";
 import FloatingChatBot from "@/components/FloatingChatBot";
 import CodingProfilesForm from "@/components/resume/CodingProfilesForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ResumeDownloadOptions } from "@/components/resume/ResumeGenerator";
 
 export interface ResumeData {
   personalInfo: {
@@ -104,6 +106,7 @@ const Builder = () => {
   });
 
   const [templateName, setTemplateName] = useState<'default' | 'modern' | 'professional' | 'creative'>('default');
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const steps = [
     { title: "Personal Info", component: PersonalInfoForm },
@@ -157,6 +160,10 @@ const Builder = () => {
     ease: "anticipate",
     duration: 0.4
   };
+
+  const completedSteps = currentStep;
+  const remainingSteps = steps.length - currentStep - 1;
+  const nextSectionTitle = steps[currentStep + 1]?.title ?? "Preview & Generate";
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
@@ -247,7 +254,7 @@ const Builder = () => {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between mt-8">
+                <div className="flex flex-col gap-4 mt-8 sm:flex-row sm:items-center sm:justify-between">
                   <Button
                     variant="outline"
                     onClick={handlePrevious}
@@ -259,7 +266,7 @@ const Builder = () => {
                   </Button>
 
                   {currentStep === steps.length - 1 ? (
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 transition-all duration-200 hover:scale-105 hover:shadow-lg" onClick={() => setShowGenerateModal(true)}>
                       <span>Generate Resume</span>
                     </Button>
                   ) : (
@@ -271,6 +278,28 @@ const Builder = () => {
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   )}
+                </div>
+
+                <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 text-white p-6 shadow-xl border border-white/10">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/70">Builder pulse</p>
+                    <h3 className="mt-2 text-2xl font-semibold">
+                      {completedSteps} / {steps.length} sections complete
+                    </h3>
+                    <p className="mt-3 text-sm text-white/80">
+                      {remainingSteps >= 0
+                        ? `You're fine-tuning the ${steps[currentStep].title} section. Next up: ${nextSectionTitle}.`
+                        : "All sections complete — polish your summary and hit generate!"}
+                    </p>
+                  </div>
+                  <Card className="p-5 border-dashed border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Quick polish checklist</p>
+                    <ul className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-300 list-disc list-inside">
+                      <li>Lead bullets with strong action verbs.</li>
+                      <li>Back wins with data (e.g. "Cut costs by 12%" ).</li>
+                      <li>Keep sentences under two lines for readability.</li>
+                    </ul>
+                  </Card>
                 </div>
               </TabsContent>
 
@@ -338,8 +367,17 @@ const Builder = () => {
 
       {/* Floating Chat Bot */}
       <FloatingChatBot />
+
+      <Dialog open={showGenerateModal} onOpenChange={setShowGenerateModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Export your resume</DialogTitle>
+          </DialogHeader>
+          <ResumeDownloadOptions data={resumeData} templateName={templateName} showHeading={false} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
-};
+}
 
 export default Builder;
